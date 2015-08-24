@@ -1,0 +1,11 @@
+b88be8ebe623c9b52d4d5610fbf3e8cd *DESCRIPTION
+09766ab30e4241ac7420efb10b4500bf *NAMESPACE
+a56e89910f50d74337dc1e02de18bd95 *R/ssrmst.R
+0f42a8b12f90b61b59bc1605c3d9c4fa *build/vignette.rds
+bf2e9c939c8a19713340b97c695b2c8d *inst/doc/vignette-ssrmst.R
+aaae8da13550fed925b7a60b31235a16 *inst/doc/vignette-ssrmst.Rmd
+a180d3c35e3ce0bf78e0f669021a38b2 *inst/doc/vignette-ssrmst.html
+2febbc8984949103ef004feeafe0e775 *man/SSRMST-package.Rd
+9129ca3ecdb629b012df6ef103f6251c *man/print.ssrmst.Rd
+0ccfe33839905d504ae3d37e331d9844 *man/ssrmst.Rd
+aaae8da13550fed925b7a60b31235a16 *vignettes/vignette-ssrmst.Rmd
