@@ -1,16 +1,18 @@
 Package: SSRMST
 Type: Package
 Title: Sample Size Calculation using Restricted Mean Survival Time
-Description: Calculates the power and sample size based on the difference in Restricted Mean Survival Times.
-Version: 0.1.0
-Date: 2015-08-24
-Author: Miki Horiguchi
+Description: Calculates the power and sample size based on the difference in Restricted Mean Survival Time.
+Version: 0.1.1
+Date: 2017-05-19
+Author: Miki Horiguchi, Hajime Uno
 Maintainer: Miki Horiguchi <horiguchimiki@gmail.com>
+Depends: R (>= 3.4.0)
 Imports: survival, survRM2
 License: GPL-2
 NeedsCompilation: no
-Suggests: knitr
+RoxygenNote: 6.0.1
+Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
-Packaged: 2015-08-24 11:56:20 UTC; PP10211
+Packaged: 2017-05-18 20:57:42 UTC; Miki
 Repository: CRAN
-Date/Publication: 2015-08-24 16:21:32
+Date/Publication: 2017-05-18 21:23:12 UTC

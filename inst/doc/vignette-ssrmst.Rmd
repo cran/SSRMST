@@ -1,30 +1,22 @@
 ---
-title: "Vignette for SSRMST Package: 
-
-
-Sample Size Calculation using 
-
-
-Restricted Mean Survival Time"
-author: "Miki Horiguchi
-
-
-Kitasato University"
-date: "August 24, 2015"
+title: "Vignette for SSRMST Package: Sample Size Calculation using Restricted Mean Survival Time"
+author: "Miki Horiguchi (Kitasato University), Hajime Uno (Dana-Farber Cancer Institute)"
+date: "May 19, 2017"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Restricted mean survival time}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
 ##1. Introduction
 The hazard ratio (HR) associated with the Cox proportional hazards model is conventionally used in a randomized clinical trial that employs a right-censored, time-to-event outcome. When the proportional hazards assumption is satisfied, the HR is a valid measure for between-group differences. However, when the assumption is not satisfied, the HR variability over time makes assessment of the between-group differences difficult. In addition, the clinical interpretation of the HR is difficult regardless of the level of adequacy in the proportional hazards assumption. This is because of the absence of an absolute hazard as a reference. 
 
-Useful alternatives to the HR based on restricted mean survival times (RMST) have been proposed^[Uno H, Claggett B, Tian L, Inoue E, Gallo P, Miyata T, Schrag D, Takeuchi M, Uyama Y, Zhao L, Skali H, Solomon S, Jacobus S, Hughes M, Packer M, Wei LJ. Moving beyond the hazard ratio in quantifying the between-group difference in survival analysis. Journal of clinical Oncology 2014, 32, 2380-2385.]. The RMST is defined as the area under the survival function up to the truncation time, tau. When we consider death as an event, we can interpret the RMST as the tau-year life expectancy. The simple interpretation of the RMST would be, on average the life expectancy with this treatment over the next tau is ~years. RMST-based measures, (e.g., the difference in RMSTs), can be used as alternatives to the HR. Because these are model-free and clinically interpretable, we therefore recommend using them in clinical trials. For implementing RMST-based measures, there is a [survRM2 package](https://cran.r-project.org/package=survRM2), which is a user-friendly tool for RMST estimations. The vignette for the survRM2 package helps one to understand not only how to calculate RMSTs but also the cadre of advantages associated with the use of RMST-based measures. 
+Useful alternatives to the HR based on restricted mean survival times (RMST) have been proposed^[Uno H, Claggett B, Tian L, Inoue E, Gallo P, Miyata T, Schrag D, Takeuchi M, Uyama Y, Zhao L, Skali H, Solomon S, Jacobus S, Hughes M, Packer M, Wei LJ. Moving beyond the hazard ratio in quantifying the between-group difference in survival analysis. Journal of clinical Oncology 2014, 32, 2380-2385.]. The RMST is defined as the area under the survival function up to the truncation time, tau. When we consider death as an event, we can interpret the RMST as the tau-year life expectancy. The simple interpretation of the RMST would be, on average the life expectancy with this treatment over the next tau is ~years. RMST-based measures, (e.g., the difference in RMST), can be used as alternatives to the HR. Because these are model-free and clinically interpretable, we therefore recommend using them in clinical trials. For implementing RMST-based measures, there is a [survRM2 package](https://cran.r-project.org/package=survRM2), which is a user-friendly tool for RMST estimations. The vignette for the survRM2 package helps one to understand not only how to calculate RMSTs but also the cadre of advantages associated with the use of RMST-based measures. 
 
-In addition, the SSRMST package is helpful in designing superiority and non-inferiority studies using differences in RMSTs. The package calculates the study sample size and power by the method introduced in Appendix 2 of Uno et al. (2015)^[Uno H, Wittes J, Fu H, Solomon SD, Claggett B, Tian L, Cai T, Pfeffer MA, Evans SR, Wei LJ. Alternatives to Hazard Ratios for Comparing the Efficacy or Safety of Therapies in Non-inferiority Studies. Annals of Internal Medicine 2015, 163, 127-134.]. This vignette thus explains how to properly use the main function *ssrmst*. In section 2, an example is provided for calculating sample sizes and powers for both superiority and non-inferiority tests using observed data from a recent clinical trial.
+In addition, the SSRMST package is helpful in designing superiority and non-inferiority studies using difference in RMST. The package calculates the study sample size and power by the method introduced in Appendix 2 of Uno et al. (2015)^[Uno H, Wittes J, Fu H, Solomon SD, Claggett B, Tian L, Cai T, Pfeffer MA, Evans SR, Wei LJ. Alternatives to Hazard Ratios for Comparing the Efficacy or Safety of Therapies in Non-inferiority Studies. Annals of Internal Medicine 2015, 163, 127-134.]. This vignette thus explains how to properly use the main function *ssrmst*. In section 2, an example is provided for calculating sample sizes and powers for both superiority and non-inferiority tests using observed data from a recent clinical trial.
 
-The SSRMST package was made and tested on the R version 3.2.2.
+The SSRMST package was made and tested on the R version 3.4.0.
 
 
 ##2. Function- *ssrmst*
@@ -40,20 +32,24 @@ ac_period = 70
 tot_time  = 908
 ```
 
-The first argument (`ac_rate`) is a scalar value of accrual rate: the number of patients per unit time. The second argument (`ac_period`) is a scalar value of accrual period: the time point at last accrual. The third argument (`tot_time`) is a scalar value of total study time: the time point at last follow-up. Note that the time units of these values should be same. According to the saxagliptin study, the observed accrual rate, accrual period, and total study time are 30 patients per day, 70 days, and 908 days, respectively.
+The first argument (`ac_rate`) is a scalar value of accrual rate: the number of patients per unit time. The second argument (`ac_period`) is a scalar value of accrual period: the time point at last accrual. The third argument (`tot_time`) is a scalar value of total study time: the time point at last follow-up. Note that the time units of these values should be same. According to the saxagliptin study, the observed accrual rate, accrual period, and total study time are 30 patients per day, 70 days, and 908 days, respectively.    
+
+From the version 0.1.1, the argument (`ac_number`) is added. `ac_number` is a scalar value of accrual number: the number of patients needed. Please specify only two paramerts from accrual information (`ac_rate`, `ac_period`, and `ac_number`). By specifying the arguments `ac_rate` and `ac_period`, the number of patients per unit time is automatically calculated (accrual type 1). By specifying `ac_period` and `ac_number`, the accrual rate is automatically calculated (accrual type 2). By specifying `ac_rate` and `ac_number`, the accrual period is automatically calculated (accrual type 3). 
 
 
 Next, the parameters for the Weibull distribution as the survival function are required:   
 
 ```{r}
-shape  = 1.05
+shape0 = 1.05
+
+shape1 = 1.05
 
 scale0 = 8573
 
 scale1 = 8573
 ```
 
-The argument (`shape`) is a scalar value of the shape parameter for the Weibull distribution in both arms. We assume the shape parameters for the Weibull distribution in both arms are the same. When the default (`shape = 1`), the Weibull distribution reduces to the Exponential distribution with the scale parameter. The arguments (`scale0` and `scale1`) are scalar values of the scale parameter for the Weibull distribution in the control (arm0) and the treatment (arm1). Note that the value of the scale parameter in the treatment (arm1) needs to be larger than or equal to that in the control (arm0), because the difference of the RMSTs (arm1 minus arm0) is always of interest in this package. In the saxagliptin study, the shape and scale parameters in both arms were 1.05 and 8573, respectively.
+The arguments (`shape0` and `shape1`) are scalar values of the shape parameter for the Weibull distribution in the control (arm0) and the treatment (arm1). When the default (`shape0 = 1` and `shape1 = 1`), the Weibull distribution reduces to the Exponential distribution with the scale parameter. The arguments (`scale0` and `scale1`) are scalar values of the scale parameter for the Weibull distribution in the control (arm0) and the treatment (arm1). Note that when the shape parameters in both arms are same (`shape0` = `shape1`), the value of the scale parameter in the treatment (arm1) needs to be larger than or equal to that in the control (arm0), because the difference of the RMSTs (arm1 minus arm0) is always of interest in this package. In the saxagliptin study, the shape and scale parameters in both arms were 1.05 and 8573, respectively.
 
 
 Next, the derivation of tau is required.
@@ -66,11 +62,11 @@ tau  = 900
 The argument (`tau`) is a scalar value to specify the truncation time point. It is important to specify an appropriate tau to calculate the RMST, which needs to be long enough to assess what we want to. In case the number of patients at risk is small around the last follow-up time, it would be appropriate to specify tau at a time with a large-enough number of patients at risk. Because the total study time of the saxagliptin study was 908 days, it was appropriate to set tau at 900 days.
 
 
-Under the setting, 2,000 sets of realizations (default) were generated with a 1:1 treatment allocation (default) for calculating confidence intervals of RMST differences. The argument (`ntest`) is a scalar value of the number of simulations and (`allocation1`) is a scalar value of the proportion of patients allocated to arm1. The argument (`seed`) is a random seed for the sampling. The default is `NULL`. The survRM2 package is therefore used to calculate the confidence intervals of the differences in RMSTs.
+Under the setting, 2,000 sets of realizations (default) were generated with a 1:1 treatment allocation (default) for calculating confidence intervals of RMST differences. The argument (`ntest`) is a scalar value of the number of iterations and (`allocation1`) is a scalar value of the proportion of patients allocated to arm1. The argument (`seed`) is a random seed for the sampling. The default is `NULL`. The confidence intervals of the differences in RMST are then calculated.
 
 
 ###*2.2) Non-inferiority test*
-It is conventional to use the HR for designing a non-inferiority test with respect to a time-to-event outcome. As described in section 1, the HR is not always appropriate as a summary measure for between-group differences. Moreover, the rationale of the conventionally used non-inferiority margin, such as 1.30 in safety studies for diabetes mellitus patients in the United States, has never been fully asserted with indisputable clarity. If the differences in RMSTs are used for designing a non-inferiority test, a non-inferiority margin implies a clinically acceptable difference in RMST values. This gives us more clinical interpretation.
+It is conventional to use the HR for designing a non-inferiority test with respect to a time-to-event outcome. As described in Section 1, the HR is not always appropriate as a summary measure for between-group differences. Moreover, the rationale of the conventionally used non-inferiority margin, such as 1.30 in safety studies for diabetes mellitus patients in the United States, has never been fully asserted with indisputable clarity. If the difference in RMST is used for designing a non-inferiority test, a non-inferiority margin implies a clinically acceptable difference in RMST value. This gives us more clinical interpretation.
 
 
 Next, the derivation of margin is required.
@@ -80,26 +76,26 @@ Next, the derivation of margin is required.
 margin  = 18
 ```
 
-The argument (`margin`) is a scalar value of non-inferiority margin: a clinically acceptable difference in RMSTs. Note that the time unit should be the same as other values. In the saxagliptin study, non-inferiority margin was determined as 18 days. Here it is assumed that a difference of 18 days out of 900 is clinically acceptable. 
+The argument (`margin`) is a scalar value of non-inferiority margin: a clinically acceptable difference in RMST. Note that the time unit should be the same as other values. In the saxagliptin study, non-inferiority margin was determined as 18 days. Here it is assumed that a difference of 18 days out of 900 is clinically acceptable. 
 
-
-Next, the power is calculated, i.e., the chance that the lower bound of 2,000 confidence intervals of the difference in RMSTs [arm1 minus arm0] falls above a value of minus margin, -18 days. Since this test is one-sided, the nominal type I error level is given as one-sided. In this program, when implementing the default value (`one_sided_alpha = 0.025`), 95% confidence intervals of the difference in RMSTs are  therefore estimated to calculate the power. The number of expected events at the time point of last follow-up is also calculated. The resultant output of a non-inferiority test is provided as follows.
+###
+Next, the power is calculated, i.e., the chance that the lower bound of 2,000 confidence intervals of the difference in RMST [arm1 minus arm0] falls above a value of minus margin, -18 days. Since this test is one-sided, the nominal type I error level is given as one-sided. In this program, when implementing the default value (`one_sided_alpha = 0.025`), 95% confidence intervals of the difference in RMST are therefore estimated to calculate the power. The number of expected events at the time point of last follow-up is also calculated. The resultant output of a non-inferiority test is provided as follows. Note that two types of power (separate and pooled) are shown based on separate and pooled variances.
 
 ```{r}
 library(SSRMST)
-ssrmst(ac_rate, ac_period, tot_time, tau, scale0, scale1, shape, margin=margin)
+ssrmst(ac_rate=ac_rate, ac_period=ac_period, tot_time=tot_time, tau=tau, shape0=shape0, scale0=scale0, shape1=shape1, scale1=scale1, margin=margin, seed=2017)
 ```
 
 ###*2.3) Superiority test*
-When implementing the default value of margin, (`margin=0`), a superiority test is selected. In this case the power (i.e., the chance that the lower bound of 2,000 confidence intervals of the difference in RMSTs [arm1 minus arm0] falls above 0) is calculated. The resultant output of a superiority test is provided as follows.
+When implementing the default value of margin (`margin=0`), a superiority test is selected. In this case the power (i.e., the chance that the lower bound of 2,000 confidence intervals of the difference in RMST [arm1 minus arm0] falls above 0) is calculated. The resultant output of a superiority test is provided as follows.
 
 
 ```{r}
-ssrmst(ac_rate, ac_period, tot_time, tau, scale0, scale1, shape)
+ssrmst(ac_rate=ac_rate, ac_period=ac_period, tot_time=tot_time, tau=tau, shape0=shape0, scale0=scale0, shape1=shape1, scale1=scale1, seed=2017)
 ```
 
-If the resulting chance is found to be lower than 80% ,for example, the setting undergoes adjustment to increase the current sample size until an 80% chance is ultimately obtained.
+If the resulting chance is found to be lower than 80%, for example, the setting undergoes adjustment to increase the current sample size until an 80% chance is ultimately obtained.
 
 
 ##3. Conclusion
-The HR, a conventionally used summary measure for between-group differences, is not always appropriate; this is particularly the case when the proportional hazards assumption is not satisfied. In addition, due to the lack of a baseline reference number, the interpretation of the HR can be quite difficult. One of the model-free alternatives to the HR, the differences in RMSTs, is clinically interpretable. Therefore, it is strongly recommended to use such a measure when designing clinical trials. The SSRMST package will likely be deemed helpful when evaluating non-inferiority or superiority studies via the use of the difference in RMSTs.
+The HR, a conventionally used summary measure for between-group differences, is not always appropriate; this is particularly the case when the proportional hazards assumption is not satisfied. In addition, due to the lack of a baseline reference number, the interpretation of the HR can be quite difficult. One of the model-free alternatives to the HR, the differences in RMST, is clinically interpretable. Therefore, it is strongly recommended to use such a measure when designing clinical trials. The SSRMST package will likely be deemed helpful when evaluating non-inferiority or superiority studies via the use of the difference in RMST.

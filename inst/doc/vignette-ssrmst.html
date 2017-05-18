@@ -4,45 +4,62 @@
 
 <head>
 
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<meta name="date" content="2015-08-24" />
+<meta name="author" content="Miki Horiguchi (Kitasato University), Hajime Uno (Dana-Farber Cancer Institute)" />
 
-<title></title>
+<meta name="date" content="2017-05-19" />
+
+<title>Vignette for SSRMST Package: Sample Size Calculation using Restricted Mean Survival Time</title>
 
 
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
+div.sourceCode { overflow-x: auto; }
 table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
   margin: 0; padding: 0; vertical-align: baseline; border: none; }
 table.sourceCode { width: 100%; line-height: 100%; }
 td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
 td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; }
-code > span.dt { color: #902000; }
-code > span.dv { color: #40a070; }
-code > span.bn { color: #40a070; }
-code > span.fl { color: #40a070; }
-code > span.ch { color: #4070a0; }
-code > span.st { color: #4070a0; }
-code > span.co { color: #60a0b0; font-style: italic; }
-code > span.ot { color: #007020; }
-code > span.al { color: #ff0000; font-weight: bold; }
-code > span.fu { color: #06287e; }
-code > span.er { color: #ff0000; font-weight: bold; }
-</style>
-<style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 </style>
 
 
-<link href="data:text/css,body%20%7B%0A%20%20background%2Dcolor%3A%20%23fff%3B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20max%2Dwidth%3A%20700px%3B%0A%20%20overflow%3A%20visible%3B%0A%20%20padding%2Dleft%3A%202em%3B%0A%20%20padding%2Dright%3A%202em%3B%0A%20%20font%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0A%20%20font%2Dsize%3A%2014px%3B%0A%20%20line%2Dheight%3A%201%2E35%3B%0A%7D%0A%0A%23header%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0A%0A%23TOC%20%7B%0A%20%20clear%3A%20both%3B%0A%20%20margin%3A%200%200%2010px%2010px%3B%0A%20%20padding%3A%204px%3B%0A%20%20width%3A%20400px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20border%2Dradius%3A%205px%3B%0A%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20font%2Dsize%3A%2013px%3B%0A%20%20line%2Dheight%3A%201%2E3%3B%0A%7D%0A%20%20%23TOC%20%2Etoctitle%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%20%20font%2Dsize%3A%2015px%3B%0A%20%20%20%20margin%2Dleft%3A%205px%3B%0A%20%20%7D%0A%0A%20%20%23TOC%20ul%20%7B%0A%20%20%20%20padding%2Dleft%3A%2040px%3B%0A%20%20%20%20margin%2Dleft%3A%20%2D1%2E5em%3B%0A%20%20%20%20margin%2Dtop%3A%205px%3B%0A%20%20%20%20margin%2Dbottom%3A%205px%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dleft%3A%20%2D2em%3B%0A%20%20%7D%0A%20%20%23TOC%20li%20%7B%0A%20%20%20%20line%2Dheight%3A%2016px%3B%0A%20%20%7D%0A%0Atable%20%7B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dcolor%3A%20%23DDDDDD%3B%0A%20%20border%2Dstyle%3A%20outset%3B%0A%20%20border%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0A%20%20border%2Dwidth%3A%202px%3B%0A%20%20padding%3A%205px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%20%20line%2Dheight%3A%2018px%3B%0A%20%20padding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0A%20%20border%2Dleft%2Dstyle%3A%20none%3B%0A%20%20border%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Ap%20%7B%0A%20%20margin%3A%200%2E5em%200%3B%0A%7D%0A%0Ablockquote%20%7B%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20padding%3A%200%2E25em%200%2E75em%3B%0A%7D%0A%0Ahr%20%7B%0A%20%20border%2Dstyle%3A%20solid%3B%0A%20%20border%3A%20none%3B%0A%20%20border%2Dtop%3A%201px%20solid%20%23777%3B%0A%20%20margin%3A%2028px%200%3B%0A%7D%0A%0Adl%20%7B%0A%20%20margin%2Dleft%3A%200%3B%0A%7D%0A%20%20dl%20dd%20%7B%0A%20%20%20%20margin%2Dbottom%3A%2013px%3B%0A%20%20%20%20margin%2Dleft%3A%2013px%3B%0A%20%20%7D%0A%20%20dl%20dt%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%7D%0A%0Aul%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%7D%0A%20%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20circle%20outside%3B%0A%20%20%7D%0A%20%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dbottom%3A%200%3B%0A%20%20%7D%0A%0Apre%2C%20code%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20color%3A%20%23333%3B%0A%7D%0Apre%20%7B%0A%20%20white%2Dspace%3A%20pre%2Dwrap%3B%20%20%20%20%2F%2A%20Wrap%20long%20lines%20%2A%2F%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20margin%3A%205px%200px%2010px%200px%3B%0A%20%20padding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Acode%20%7B%0A%20%20font%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0A%20%20font%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0A%20%20padding%3A%202px%200px%3B%0A%7D%0A%0Adiv%2Efigure%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0A%20%20background%2Dcolor%3A%20%23FFFFFF%3B%0A%20%20padding%3A%202px%3B%0A%20%20border%3A%201px%20solid%20%23DDDDDD%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20margin%3A%200%205px%3B%0A%7D%0A%0Ah1%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%20%20font%2Dsize%3A%2035px%3B%0A%20%20line%2Dheight%3A%2040px%3B%0A%7D%0A%0Ah2%20%7B%0A%20%20border%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20padding%2Dbottom%3A%202px%3B%0A%20%20font%2Dsize%3A%20145%25%3B%0A%7D%0A%0Ah3%20%7B%0A%20%20border%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20font%2Dsize%3A%20120%25%3B%0A%7D%0A%0Ah4%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0A%20%20margin%2Dleft%3A%208px%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Ah5%2C%20h6%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23ccc%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Aa%20%7B%0A%20%20color%3A%20%230033dd%3B%0A%20%20text%2Ddecoration%3A%20none%3B%0A%7D%0A%20%20a%3Ahover%20%7B%0A%20%20%20%20color%3A%20%236666ff%3B%20%7D%0A%20%20a%3Avisited%20%7B%0A%20%20%20%20color%3A%20%23800080%3B%20%7D%0A%20%20a%3Avisited%3Ahover%20%7B%0A%20%20%20%20color%3A%20%23BB00BB%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%0A%2F%2A%20Class%20described%20in%20https%3A%2F%2Fbenjeffrey%2Ecom%2Fposts%2Fpandoc%2Dsyntax%2Dhighlighting%2Dcss%0A%20%20%20Colours%20from%20https%3A%2F%2Fgist%2Egithub%2Ecom%2Frobsimmons%2F1172277%20%2A%2F%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Keyword%20%2A%2F%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%2F%2A%20DataType%20%2A%2F%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%2F%2A%20DecVal%20%28decimal%20values%29%20%2A%2F%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20BaseN%20%2A%2F%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Float%20%2A%2F%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Char%20%2A%2F%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20String%20%2A%2F%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%2F%2A%20Comment%20%2A%2F%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%2F%2A%20OtherToken%20%2A%2F%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20AlertToken%20%2A%2F%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Function%20calls%20%2A%2F%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%2F%2A%20ErrorTok%20%2A%2F%0A%0A" rel="stylesheet" type="text/css" />
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
 
 </head>
 
@@ -50,82 +67,89 @@ code > span.er { color: #ff0000; font-weight: bold; }
 
 
 
-<div id="header">
-<h1 class="title"><p>Vignette for SSRMST Package:</p>
-<p>Sample Size Calculation using</p>
-<p>Restricted Mean Survival Time</p></h1>
-<h4 class="author"><em><p>Miki Horiguchi</p>
-<p>Kitasato University</p></em></h4>
-<h4 class="date"><em>August 24, 2015</em></h4>
-</div>
+
+<h1 class="title toc-ignore">Vignette for SSRMST Package: Sample Size Calculation using Restricted Mean Survival Time</h1>
+<h4 class="author"><em>Miki Horiguchi (Kitasato University), Hajime Uno (Dana-Farber Cancer Institute)</em></h4>
+<h4 class="date"><em>May 19, 2017</em></h4>
+
 
 
 <div id="introduction" class="section level2">
 <h2>1. Introduction</h2>
 <p>The hazard ratio (HR) associated with the Cox proportional hazards model is conventionally used in a randomized clinical trial that employs a right-censored, time-to-event outcome. When the proportional hazards assumption is satisfied, the HR is a valid measure for between-group differences. However, when the assumption is not satisfied, the HR variability over time makes assessment of the between-group differences difficult. In addition, the clinical interpretation of the HR is difficult regardless of the level of adequacy in the proportional hazards assumption. This is because of the absence of an absolute hazard as a reference.</p>
-<p>Useful alternatives to the HR based on restricted mean survival times (RMST) have been proposed<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>. The RMST is defined as the area under the survival function up to the truncation time, tau. When we consider death as an event, we can interpret the RMST as the tau-year life expectancy. The simple interpretation of the RMST would be, on average the life expectancy with this treatment over the next tau is ~years. RMST-based measures, (e.g., the difference in RMSTs), can be used as alternatives to the HR. Because these are model-free and clinically interpretable, we therefore recommend using them in clinical trials. For implementing RMST-based measures, there is a <a href="https://cran.r-project.org/package=survRM2">survRM2 package</a>, which is a user-friendly tool for RMST estimations. The vignette for the survRM2 package helps one to understand not only how to calculate RMSTs but also the cadre of advantages associated with the use of RMST-based measures.</p>
-<p>In addition, the SSRMST package is helpful in designing superiority and non-inferiority studies using differences in RMSTs. The package calculates the study sample size and power by the method introduced in Appendix 2 of Uno et al. (2015)<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. This vignette thus explains how to properly use the main function <em>ssrmst</em>. In section 2, an example is provided for calculating sample sizes and powers for both superiority and non-inferiority tests using observed data from a recent clinical trial.</p>
-<p>The SSRMST package was made and tested on the R version 3.2.2.</p>
+<p>Useful alternatives to the HR based on restricted mean survival times (RMST) have been proposed<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>. The RMST is defined as the area under the survival function up to the truncation time, tau. When we consider death as an event, we can interpret the RMST as the tau-year life expectancy. The simple interpretation of the RMST would be, on average the life expectancy with this treatment over the next tau is ~years. RMST-based measures, (e.g., the difference in RMST), can be used as alternatives to the HR. Because these are model-free and clinically interpretable, we therefore recommend using them in clinical trials. For implementing RMST-based measures, there is a <a href="https://cran.r-project.org/package=survRM2">survRM2 package</a>, which is a user-friendly tool for RMST estimations. The vignette for the survRM2 package helps one to understand not only how to calculate RMSTs but also the cadre of advantages associated with the use of RMST-based measures.</p>
+<p>In addition, the SSRMST package is helpful in designing superiority and non-inferiority studies using difference in RMST. The package calculates the study sample size and power by the method introduced in Appendix 2 of Uno et al. (2015)<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. This vignette thus explains how to properly use the main function <em>ssrmst</em>. In section 2, an example is provided for calculating sample sizes and powers for both superiority and non-inferiority tests using observed data from a recent clinical trial.</p>
+<p>The SSRMST package was made and tested on the R version 3.4.0.</p>
 </div>
 <div id="function--ssrmst" class="section level2">
 <h2>2. Function- <em>ssrmst</em></h2>
 <div id="setting" class="section level3">
 <h3><em>2.1) Setting</em></h3>
 <p>In this section, function arguments are introduced. These values can be determined by referring to results of previously analyzed clinical trials. Furthermore in this section, the same values presented in Appendix 2 of Uno et al. (2015) are utilized. These values are the observed data from a recent placebo-controlled clinical trial to assess the potential cardiovascular risk of saxagliptin in patients with type-2 diabetes mellitus (The Saxagliptin Study)<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>.</p>
-<pre class="sourceCode r"><code class="sourceCode r">ac_rate   =<span class="st"> </span><span class="dv">30</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ac_rate   =<span class="st"> </span><span class="dv">30</span>
 
 ac_period =<span class="st"> </span><span class="dv">70</span>
 
-tot_time  =<span class="st"> </span><span class="dv">908</span></code></pre>
+tot_time  =<span class="st"> </span><span class="dv">908</span></code></pre></div>
 <p>The first argument (<code>ac_rate</code>) is a scalar value of accrual rate: the number of patients per unit time. The second argument (<code>ac_period</code>) is a scalar value of accrual period: the time point at last accrual. The third argument (<code>tot_time</code>) is a scalar value of total study time: the time point at last follow-up. Note that the time units of these values should be same. According to the saxagliptin study, the observed accrual rate, accrual period, and total study time are 30 patients per day, 70 days, and 908 days, respectively.</p>
+<p>From the version 0.1.1, the argument (<code>ac_number</code>) is added. <code>ac_number</code> is a scalar value of accrual number: the number of patients needed. Please specify only two paramerts from accrual information (<code>ac_rate</code>, <code>ac_period</code>, and <code>ac_number</code>). By specifying the arguments <code>ac_rate</code> and <code>ac_period</code>, the number of patients per unit time is automatically calculated (accrual type 1). By specifying <code>ac_period</code> and <code>ac_number</code>, the accrual rate is automatically calculated (accrual type 2). By specifying <code>ac_rate</code> and <code>ac_number</code>, the accrual period is automatically calculated (accrual type 3).</p>
 <p>Next, the parameters for the Weibull distribution as the survival function are required:</p>
-<pre class="sourceCode r"><code class="sourceCode r">shape  =<span class="st"> </span><span class="fl">1.05</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">shape0 =<span class="st"> </span><span class="fl">1.05</span>
+
+shape1 =<span class="st"> </span><span class="fl">1.05</span>
 
 scale0 =<span class="st"> </span><span class="dv">8573</span>
 
-scale1 =<span class="st"> </span><span class="dv">8573</span></code></pre>
-<p>The argument (<code>shape</code>) is a scalar value of the shape parameter for the Weibull distribution in both arms. We assume the shape parameters for the Weibull distribution in both arms are the same. When the default (<code>shape = 1</code>), the Weibull distribution reduces to the Exponential distribution with the scale parameter. The arguments (<code>scale0</code> and <code>scale1</code>) are scalar values of the scale parameter for the Weibull distribution in the control (arm0) and the treatment (arm1). Note that the value of the scale parameter in the treatment (arm1) needs to be larger than or equal to that in the control (arm0), because the difference of the RMSTs (arm1 minus arm0) is always of interest in this package. In the saxagliptin study, the shape and scale parameters in both arms were 1.05 and 8573, respectively.</p>
+scale1 =<span class="st"> </span><span class="dv">8573</span></code></pre></div>
+<p>The arguments (<code>shape0</code> and <code>shape1</code>) are scalar values of the shape parameter for the Weibull distribution in the control (arm0) and the treatment (arm1). When the default (<code>shape0 = 1</code> and <code>shape1 = 1</code>), the Weibull distribution reduces to the Exponential distribution with the scale parameter. The arguments (<code>scale0</code> and <code>scale1</code>) are scalar values of the scale parameter for the Weibull distribution in the control (arm0) and the treatment (arm1). Note that when the shape parameters in both arms are same (<code>shape0</code> = <code>shape1</code>), the value of the scale parameter in the treatment (arm1) needs to be larger than or equal to that in the control (arm0), because the difference of the RMSTs (arm1 minus arm0) is always of interest in this package. In the saxagliptin study, the shape and scale parameters in both arms were 1.05 and 8573, respectively.</p>
 <p>Next, the derivation of tau is required.</p>
-<pre class="sourceCode r"><code class="sourceCode r">tau  =<span class="st"> </span><span class="dv">900</span></code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tau  =<span class="st"> </span><span class="dv">900</span></code></pre></div>
 <p>The argument (<code>tau</code>) is a scalar value to specify the truncation time point. It is important to specify an appropriate tau to calculate the RMST, which needs to be long enough to assess what we want to. In case the number of patients at risk is small around the last follow-up time, it would be appropriate to specify tau at a time with a large-enough number of patients at risk. Because the total study time of the saxagliptin study was 908 days, it was appropriate to set tau at 900 days.</p>
-<p>Under the setting, 2,000 sets of realizations (default) were generated with a 1:1 treatment allocation (default) for calculating confidence intervals of RMST differences. The argument (<code>ntest</code>) is a scalar value of the number of simulations and (<code>allocation1</code>) is a scalar value of the proportion of patients allocated to arm1. The argument (<code>seed</code>) is a random seed for the sampling. The default is <code>NULL</code>. The survRM2 package is therefore used to calculate the confidence intervals of the differences in RMSTs.</p>
+<p>Under the setting, 2,000 sets of realizations (default) were generated with a 1:1 treatment allocation (default) for calculating confidence intervals of RMST differences. The argument (<code>ntest</code>) is a scalar value of the number of iterations and (<code>allocation1</code>) is a scalar value of the proportion of patients allocated to arm1. The argument (<code>seed</code>) is a random seed for the sampling. The default is <code>NULL</code>. The confidence intervals of the differences in RMST are then calculated.</p>
 </div>
 <div id="non-inferiority-test" class="section level3">
 <h3><em>2.2) Non-inferiority test</em></h3>
-<p>It is conventional to use the HR for designing a non-inferiority test with respect to a time-to-event outcome. As described in section 1, the HR is not always appropriate as a summary measure for between-group differences. Moreover, the rationale of the conventionally used non-inferiority margin, such as 1.30 in safety studies for diabetes mellitus patients in the United States, has never been fully asserted with indisputable clarity. If the differences in RMSTs are used for designing a non-inferiority test, a non-inferiority margin implies a clinically acceptable difference in RMST values. This gives us more clinical interpretation.</p>
+<p>It is conventional to use the HR for designing a non-inferiority test with respect to a time-to-event outcome. As described in Section 1, the HR is not always appropriate as a summary measure for between-group differences. Moreover, the rationale of the conventionally used non-inferiority margin, such as 1.30 in safety studies for diabetes mellitus patients in the United States, has never been fully asserted with indisputable clarity. If the difference in RMST is used for designing a non-inferiority test, a non-inferiority margin implies a clinically acceptable difference in RMST value. This gives us more clinical interpretation.</p>
 <p>Next, the derivation of margin is required.</p>
-<pre class="sourceCode r"><code class="sourceCode r">margin  =<span class="st"> </span><span class="dv">18</span></code></pre>
-<p>The argument (<code>margin</code>) is a scalar value of non-inferiority margin: a clinically acceptable difference in RMSTs. Note that the time unit should be the same as other values. In the saxagliptin study, non-inferiority margin was determined as 18 days. Here it is assumed that a difference of 18 days out of 900 is clinically acceptable.</p>
-<p>Next, the power is calculated, i.e., the chance that the lower bound of 2,000 confidence intervals of the difference in RMSTs [arm1 minus arm0] falls above a value of minus margin, -18 days. Since this test is one-sided, the nominal type I error level is given as one-sided. In this program, when implementing the default value (<code>one_sided_alpha = 0.025</code>), 95% confidence intervals of the difference in RMSTs are therefore estimated to calculate the power. The number of expected events at the time point of last follow-up is also calculated. The resultant output of a non-inferiority test is provided as follows.</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(SSRMST)
-<span class="kw">ssrmst</span>(ac_rate, ac_period, tot_time, tau, scale0, scale1, shape, <span class="dt">margin=</span>margin)</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">margin  =<span class="st"> </span><span class="dv">18</span></code></pre></div>
+<p>The argument (<code>margin</code>) is a scalar value of non-inferiority margin: a clinically acceptable difference in RMST. Note that the time unit should be the same as other values. In the saxagliptin study, non-inferiority margin was determined as 18 days. Here it is assumed that a difference of 18 days out of 900 is clinically acceptable.</p>
+</div>
+<div id="section" class="section level3">
+<h3></h3>
+<p>Next, the power is calculated, i.e., the chance that the lower bound of 2,000 confidence intervals of the difference in RMST [arm1 minus arm0] falls above a value of minus margin, -18 days. Since this test is one-sided, the nominal type I error level is given as one-sided. In this program, when implementing the default value (<code>one_sided_alpha = 0.025</code>), 95% confidence intervals of the difference in RMST are therefore estimated to calculate the power. The number of expected events at the time point of last follow-up is also calculated. The resultant output of a non-inferiority test is provided as follows. Note that two types of power (separate and pooled) are shown based on separate and pooled variances.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(SSRMST)
+<span class="kw">ssrmst</span>(<span class="dt">ac_rate=</span>ac_rate, <span class="dt">ac_period=</span>ac_period, <span class="dt">tot_time=</span>tot_time, <span class="dt">tau=</span>tau, <span class="dt">shape0=</span>shape0, <span class="dt">scale0=</span>scale0, <span class="dt">shape1=</span>shape1, <span class="dt">scale1=</span>scale1, <span class="dt">margin=</span>margin, <span class="dt">seed=</span><span class="dv">2017</span>)</code></pre></div>
 <pre><code>## Non-inferiority test 
 ## 
 ##                           Total arm0 arm1
 ## Sample size                2100 1050 1050
 ## Expected number of events   182   91   91
 ## 
-##  Power 
-## 0.7975</code></pre>
+## Power (separate) 
+##            0.801 
+## Power (pooled) 
+##          0.801</code></pre>
 </div>
 <div id="superiority-test" class="section level3">
 <h3><em>2.3) Superiority test</em></h3>
-<p>When implementing the default value of margin, (<code>margin=0</code>), a superiority test is selected. In this case the power (i.e., the chance that the lower bound of 2,000 confidence intervals of the difference in RMSTs [arm1 minus arm0] falls above 0) is calculated. The resultant output of a superiority test is provided as follows.</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ssrmst</span>(ac_rate, ac_period, tot_time, tau, scale0, scale1, shape)</code></pre>
+<p>When implementing the default value of margin (<code>margin=0</code>), a superiority test is selected. In this case the power (i.e., the chance that the lower bound of 2,000 confidence intervals of the difference in RMST [arm1 minus arm0] falls above 0) is calculated. The resultant output of a superiority test is provided as follows.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ssrmst</span>(<span class="dt">ac_rate=</span>ac_rate, <span class="dt">ac_period=</span>ac_period, <span class="dt">tot_time=</span>tot_time, <span class="dt">tau=</span>tau, <span class="dt">shape0=</span>shape0, <span class="dt">scale0=</span>scale0, <span class="dt">shape1=</span>shape1, <span class="dt">scale1=</span>scale1, <span class="dt">seed=</span><span class="dv">2017</span>)</code></pre></div>
 <pre><code>## Superiority test 
 ## 
 ##                           Total arm0 arm1
 ## Sample size                2100 1050 1050
 ## Expected number of events   182   91   91
 ## 
-##  Power 
-## 0.0345</code></pre>
-<p>If the resulting chance is found to be lower than 80% ,for example, the setting undergoes adjustment to increase the current sample size until an 80% chance is ultimately obtained.</p>
+## Power (separate) 
+##            0.028 
+## Power (pooled) 
+##          0.028</code></pre>
+<p>If the resulting chance is found to be lower than 80%, for example, the setting undergoes adjustment to increase the current sample size until an 80% chance is ultimately obtained.</p>
 </div>
 </div>
 <div id="conclusion" class="section level2">
 <h2>3. Conclusion</h2>
-<p>The HR, a conventionally used summary measure for between-group differences, is not always appropriate; this is particularly the case when the proportional hazards assumption is not satisfied. In addition, due to the lack of a baseline reference number, the interpretation of the HR can be quite difficult. One of the model-free alternatives to the HR, the differences in RMSTs, is clinically interpretable. Therefore, it is strongly recommended to use such a measure when designing clinical trials. The SSRMST package will likely be deemed helpful when evaluating non-inferiority or superiority studies via the use of the difference in RMSTs.</p>
+<p>The HR, a conventionally used summary measure for between-group differences, is not always appropriate; this is particularly the case when the proportional hazards assumption is not satisfied. In addition, due to the lack of a baseline reference number, the interpretation of the HR can be quite difficult. One of the model-free alternatives to the HR, the differences in RMST, is clinically interpretable. Therefore, it is strongly recommended to use such a measure when designing clinical trials. The SSRMST package will likely be deemed helpful when evaluating non-inferiority or superiority studies via the use of the difference in RMST.</p>
 </div>
 <div class="footnotes">
 <hr />
@@ -143,7 +167,7 @@ scale1 =<span class="st"> </span><span class="dv">8573</span></code></pre>
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>
